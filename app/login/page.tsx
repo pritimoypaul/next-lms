@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react";
 
 const Login = () => {
@@ -9,7 +10,9 @@ const Login = () => {
           <div className="col-span-full lg:col-span-6">
             <div className="flex flex-col items-center justify-center gap-10 text-center">
               <div className="hidden sm:block">
-                <img
+                <Image
+                  width={400}
+                  height={100}
                   src="assets/images/loti/loti-auth.svg"
                   alt="loti"
                   className="group-[.dark]:hidden"
@@ -109,14 +112,21 @@ const Login = () => {
                   href="#"
                   className="btn b-outline-static btn-disable-outline w-full grow xl:w-auto"
                 >
-                  <img src="assets/images/icons/google.svg" alt="icon" />
+                  <Image
+                    width={20}
+                    height={20}
+                    src="assets/images/icons/google.svg"
+                    alt="icon"
+                  />
                   <span className="shrink-0">Sign in with Google</span>
                 </a>
                 <a
                   href="#"
                   className="btn b-outline-static btn-disable-outline w-full grow xl:w-auto"
                 >
-                  <img
+                  <Image
+                    width={17}
+                    height={20}
                     src="assets/images/icons/apple.svg"
                     alt="icon"
                     className="dark:brightness-[3]"
