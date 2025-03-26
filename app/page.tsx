@@ -7,7 +7,7 @@ const HomePage = () => {
 
   useEffect(() => {
     // Redirect to /login if someone visits the base URL
-    router.push("/login");
+    router.push("/auth/login");
   }, [router]);
 
   return null; // You can also return a loading spinner or similar until the redirection happens

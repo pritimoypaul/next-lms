@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 
 const Login = () => {
@@ -13,7 +14,7 @@ const Login = () => {
                 <Image
                   width={400}
                   height={100}
-                  src="assets/images/loti/loti-auth.svg"
+                  src="/assets/images/loti/loti-auth.svg"
                   alt="loti"
                   className="group-[.dark]:hidden"
                 />
@@ -40,7 +41,7 @@ const Login = () => {
               <p className="font-medium text-gray-500 dark:text-dark-text mt-4">
                 Welcome Back! Log in to your account
               </p>
-              <form action="index.html" className="leading-none mt-8">
+              <form action="/admin/dashboard" className="leading-none mt-8">
                 <div className="mb-2.5">
                   <label htmlFor="email" className="form-label">
                     Email
@@ -89,12 +90,12 @@ const Login = () => {
                       Remember Me
                     </label>
                   </div>
-                  <a
-                    href="forgot-password.html"
+                  <Link
+                    href="/auth/forgot-pass"
                     className="text-xs leading-none text-primary-500 font-semibold"
                   >
                     Forgot password?
-                  </a>
+                  </Link>
                 </div>
                 {/* Submit Button */}
                 <button
@@ -115,7 +116,7 @@ const Login = () => {
                   <Image
                     width={20}
                     height={20}
-                    src="assets/images/icons/google.svg"
+                    src="/assets/images/icons/google.svg"
                     alt="icon"
                   />
                   <span className="shrink-0">Sign in with Google</span>
@@ -127,7 +128,7 @@ const Login = () => {
                   <Image
                     width={17}
                     height={20}
-                    src="assets/images/icons/apple.svg"
+                    src="/assets/images/icons/apple.svg"
                     alt="icon"
                     className="dark:brightness-[3]"
                   />
@@ -136,12 +137,12 @@ const Login = () => {
               </div>
               <div className="text-gray-900 dark:text-dark-text font-medium leading-none mt-5">
                 Don't have an account yet?
-                <a
-                  href="sign-up.html"
+                <Link
+                  href="/auth/signup"
                   className="text-primary-500 font-semibold"
                 >
                   Sign Up
-                </a>
+                </Link>
               </div>
             </div>
           </div>
