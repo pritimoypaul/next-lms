@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Script from "next/script";
 
 export default function Layout({
   children,
@@ -988,15 +989,15 @@ export default function Layout({
         {children}
       </div>
       {/* <!-- End Main Content --> */}
-      {/* <script src="assets/js/vendor/jquery.min.js"></script>
-      <script src="assets/js/vendor/apexcharts.min.js"></script>
-      <script src="assets/js/vendor/flowbite.min.js"></script>
-      <script src="assets/js/vendor/smooth-scrollbar/smooth-scrollbar.min.js"></script>
-      <script src="assets/js/pages/dashboard-admin-lms.js"></script>
-      <script src="assets/js/component/app-menu-bar.js"></script>
-      <script src="assets/js/switcher.js"></script>
-      <script src="assets/js/layout.js"></script>
-      <script src="assets/js/main.js"></script> */}
+      <Script src="/assets/js/vendor/jquery.min.js"></Script>
+      {/* <Script src="/assets/js/vendor/apexcharts.min.js"></Script> */}
+      <Script src="/assets/js/vendor/flowbite.min.js"></Script>
+      <Script src="/assets/js/vendor/smooth-scrollbar/smooth-scrollbar.min.js"></Script>
+      <Script src="/assets/js/pages/dashboard-admin-lms.js"></Script>
+      <Script src="/assets/js/component/app-menu-bar.js"></Script>
+      <Script src="/assets/js/switcher.js"></Script>
+      <Script src="/assets/js/layout.js"></Script>
+      <Script src="/assets/js/main.js"></Script>
     </body>
   );
 }
