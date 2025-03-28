@@ -23,12 +23,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
+    <html
+      lang="en"
+      className="group"
+      data-sidebar-size="lg"
+      data-card-style="square"
+    >
+      {/* <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
+      > */}
+      {children}
+      {/* </body> */}
     </html>
   );
 }
