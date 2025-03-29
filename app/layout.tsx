@@ -29,11 +29,7 @@ export default function RootLayout({
       data-sidebar-size="lg"
       data-card-style="square"
     >
-      {/* <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      > */}
-      {children}
-      {/* </body> */}
+      <body>{children}</body>
     </html>
   );
 }
