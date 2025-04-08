@@ -1,7 +1,39 @@
+"use client";
+
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
+import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { Pencil, Trash2 } from "lucide-react";
+
+interface Category {
+  id: number;
+  name: string;
+  status: boolean;
+}
 
 const AllCourseCategory = () => {
+  const [categories, setCategories] = useState<Category[]>([
+    { id: 1, name: "Programing", status: true },
+    { id: 2, name: "JavaScript", status: true },
+    { id: 3, name: "Web Development", status: true },
+    { id: 4, name: "Web Design", status: true },
+    { id: 5, name: "UI/UX", status: true },
+    { id: 6, name: "Business Growth", status: true },
+    { id: 7, name: "Job Success", status: true },
+    { id: 8, name: "Basic Graphic Design", status: true },
+  ]);
+
+  const handleStatusChange = (id: number) => {
+    setCategories(
+      categories.map((category) =>
+        category.id === id
+          ? { ...category, status: !category.status }
+          : category
+      )
+    );
+  };
+
   return (
     <div className="main-content group-data-[sidebar-size=lg]:xl:ml-[16px] group-data-[sidebar-size=sm]:xl:ml-[16px] px-4 group-data-[theme-width=box]:xl:px-0 ac-transition">
       <div className="card p-0 lg:min-h-[calc(100vh_-_theme('spacing.header')_*_1.4)] xl:min-h-[calc(100vh_-_theme('spacing.header')_*_1.6)]">
@@ -17,7 +49,7 @@ const AllCourseCategory = () => {
             Add Category
           </Link>
         </div>
-        {/* <!-- Start All Language List Table --> */}
+        {/* Start All Language List Table */}
         <div className="p-3 sm:p-4">
           <div className="overflow-x-auto scrollbar-table">
             <table className="table-auto w-full whitespace-nowrap text-left text-gray-500 dark:text-dark-text leading-none">
@@ -29,251 +61,55 @@ const AllCourseCategory = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-dark-border">
-                <tr className="hover:bg-primary-200/50 dark:hover:bg-dark-icon hover:text-gray-500 dark:hover:text-white">
-                  <td className="px-3.5 py-4">Programing</td>
-                  <td className="px-3.5 py-4">
-                    <label className="inline-flex items-center me-5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="appearance-none peer"
-                        checked
+                {categories.map((category) => (
+                  <tr
+                    key={category.id}
+                    className="hover:bg-primary-200/50 dark:hover:bg-dark-icon hover:text-gray-500 dark:hover:text-white"
+                  >
+                    <td className="px-3.5 py-4">{category.name}</td>
+                    <td className="px-3.5 py-4">
+                      <Switch
+                        checked={category.status}
+                        onCheckedChange={() => handleStatusChange(category.id)}
+                        className="data-[state=checked]:bg-[rgb(95_113_250)] data-[state=unchecked]:bg-[rgb(226_226_226)] [&>span]:bg-white"
                       />
-                      <span className="switcher switcher-primary-solid"></span>
-                    </label>
-                  </td>
-                  <td className="px-3.5 py-4">
-                    <div className="flex items-center gap-1">
-                      <a
-                        href="create-course-category.html"
-                        className="btn-icon btn-primary-icon-light size-7"
-                      >
-                        <i className="ri-edit-2-line text-inherit text-[13px]"></i>
-                      </a>
-                      <button
-                        className="btn-icon btn-danger-icon-light size-7"
-                        data-modal-target="deleteModal"
-                        data-modal-toggle="deleteModal"
-                      >
-                        <i className="ri-delete-bin-line text-danger text-[13px]"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr className="hover:bg-primary-200/50 dark:hover:bg-dark-icon hover:text-gray-500 dark:hover:text-white">
-                  <td className="px-3.5 py-4">JavaScript</td>
-                  <td className="px-3.5 py-4">
-                    <label className="inline-flex items-center me-5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="appearance-none peer"
-                        checked
-                      />
-                      <span className="switcher switcher-primary-solid"></span>
-                    </label>
-                  </td>
-                  <td className="px-3.5 py-4">
-                    <div className="flex items-center gap-1">
-                      <a
-                        href="create-course-category.html"
-                        className="btn-icon btn-primary-icon-light size-7"
-                      >
-                        <i className="ri-edit-2-line text-inherit text-[13px]"></i>
-                      </a>
-                      <button
-                        className="btn-icon btn-danger-icon-light size-7"
-                        data-modal-target="deleteModal"
-                        data-modal-toggle="deleteModal"
-                      >
-                        <i className="ri-delete-bin-line text-danger text-[13px]"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr className="hover:bg-primary-200/50 dark:hover:bg-dark-icon hover:text-gray-500 dark:hover:text-white">
-                  <td className="px-3.5 py-4">Web Development</td>
-                  <td className="px-3.5 py-4">
-                    <label className="inline-flex items-center me-5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="appearance-none peer"
-                        checked
-                      />
-                      <span className="switcher switcher-primary-solid"></span>
-                    </label>
-                  </td>
-                  <td className="px-3.5 py-4">
-                    <div className="flex items-center gap-1">
-                      <a
-                        href="create-course-category.html"
-                        className="btn-icon btn-primary-icon-light size-7"
-                      >
-                        <i className="ri-edit-2-line text-inherit text-[13px]"></i>
-                      </a>
-                      <button
-                        className="btn-icon btn-danger-icon-light size-7"
-                        data-modal-target="deleteModal"
-                        data-modal-toggle="deleteModal"
-                      >
-                        <i className="ri-delete-bin-line text-danger text-[13px]"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr className="hover:bg-primary-200/50 dark:hover:bg-dark-icon hover:text-gray-500 dark:hover:text-white">
-                  <td className="px-3.5 py-4">Web Design</td>
-                  <td className="px-3.5 py-4">
-                    <label className="inline-flex items-center me-5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="appearance-none peer"
-                        checked
-                      />
-                      <span className="switcher switcher-primary-solid"></span>
-                    </label>
-                  </td>
-                  <td className="px-3.5 py-4">
-                    <div className="flex items-center gap-1">
-                      <a
-                        href="create-course-category.html"
-                        className="btn-icon btn-primary-icon-light size-7"
-                      >
-                        <i className="ri-edit-2-line text-inherit text-[13px]"></i>
-                      </a>
-                      <button
-                        className="btn-icon btn-danger-icon-light size-7"
-                        data-modal-target="deleteModal"
-                        data-modal-toggle="deleteModal"
-                      >
-                        <i className="ri-delete-bin-line text-danger text-[13px]"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr className="hover:bg-primary-200/50 dark:hover:bg-dark-icon hover:text-gray-500 dark:hover:text-white">
-                  <td className="px-3.5 py-4">UI/UX</td>
-                  <td className="px-3.5 py-4">
-                    <label className="inline-flex items-center me-5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="appearance-none peer"
-                        checked
-                      />
-                      <span className="switcher switcher-primary-solid"></span>
-                    </label>
-                  </td>
-                  <td className="px-3.5 py-4">
-                    <div className="flex items-center gap-1">
-                      <a
-                        href="create-course-category.html"
-                        className="btn-icon btn-primary-icon-light size-7"
-                      >
-                        <i className="ri-edit-2-line text-inherit text-[13px]"></i>
-                      </a>
-                      <button
-                        className="btn-icon btn-danger-icon-light size-7"
-                        data-modal-target="deleteModal"
-                        data-modal-toggle="deleteModal"
-                      >
-                        <i className="ri-delete-bin-line text-danger text-[13px]"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr className="hover:bg-primary-200/50 dark:hover:bg-dark-icon hover:text-gray-500 dark:hover:text-white">
-                  <td className="px-3.5 py-4">Business Growth</td>
-                  <td className="px-3.5 py-4">
-                    <label className="inline-flex items-center me-5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="appearance-none peer"
-                        checked
-                      />
-                      <span className="switcher switcher-primary-solid"></span>
-                    </label>
-                  </td>
-                  <td className="px-3.5 py-4">
-                    <div className="flex items-center gap-1">
-                      <a
-                        href="create-course-category.html"
-                        className="btn-icon btn-primary-icon-light size-7"
-                      >
-                        <i className="ri-edit-2-line text-inherit text-[13px]"></i>
-                      </a>
-                      <button
-                        className="btn-icon btn-danger-icon-light size-7"
-                        data-modal-target="deleteModal"
-                        data-modal-toggle="deleteModal"
-                      >
-                        <i className="ri-delete-bin-line text-danger text-[13px]"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr className="hover:bg-primary-200/50 dark:hover:bg-dark-icon hover:text-gray-500 dark:hover:text-white">
-                  <td className="px-3.5 py-4">Job Success</td>
-                  <td className="px-3.5 py-4">
-                    <label className="inline-flex items-center me-5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="appearance-none peer"
-                        checked
-                      />
-                      <span className="switcher switcher-primary-solid"></span>
-                    </label>
-                  </td>
-                  <td className="px-3.5 py-4">
-                    <div className="flex items-center gap-1">
-                      <a
-                        href="create-course-category.html"
-                        className="btn-icon btn-primary-icon-light size-7"
-                      >
-                        <i className="ri-edit-2-line text-inherit text-[13px]"></i>
-                      </a>
-                      <button
-                        className="btn-icon btn-danger-icon-light size-7"
-                        data-modal-target="deleteModal"
-                        data-modal-toggle="deleteModal"
-                      >
-                        <i className="ri-delete-bin-line text-danger text-[13px]"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr className="hover:bg-primary-200/50 dark:hover:bg-dark-icon hover:text-gray-500 dark:hover:text-white">
-                  <td className="px-3.5 py-4">Basic Graphic Design</td>
-                  <td className="px-3.5 py-4">
-                    <label className="inline-flex items-center me-5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="appearance-none peer"
-                        checked
-                      />
-                      <span className="switcher switcher-primary-solid"></span>
-                    </label>
-                  </td>
-                  <td className="px-3.5 py-4">
-                    <div className="flex items-center gap-1">
-                      <a
-                        href="create-course-category.html"
-                        className="btn-icon btn-primary-icon-light size-7"
-                      >
-                        <i className="ri-edit-2-line text-inherit text-[13px]"></i>
-                      </a>
-                      <button
-                        className="btn-icon btn-danger-icon-light size-7"
-                        data-modal-target="deleteModal"
-                        data-modal-toggle="deleteModal"
-                      >
-                        <i className="ri-delete-bin-line text-danger text-[13px]"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                    </td>
+                    <td className="px-3.5 py-4">
+                      <div className="flex items-center gap-1">
+                        <Link
+                          href={`/admin/create-course-category?id=${category.id}`}
+                          className="btn-icon btn-primary-icon-light size-7"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Link>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="btn-icon btn-danger-icon-light size-7"
+                          onClick={() => {
+                            // Handle delete
+                            if (
+                              confirm(
+                                "Are you sure you want to delete this category?"
+                              )
+                            ) {
+                              setCategories(
+                                categories.filter((c) => c.id !== category.id)
+                              );
+                            }
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 text-danger" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
         </div>
-        {/* <!-- End All Language List Table --> */}
+        {/* End All Language List Table */}
       </div>
     </div>
   );
