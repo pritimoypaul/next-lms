@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -29,11 +29,11 @@ import {
   Redo,
   Strikethrough,
   Undo,
+  Loader2,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axiosInstance from "@/utils/axios";
 import { toast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -77,7 +77,15 @@ const cities = [
   { value: "SA", label: "San Antonio" },
 ];
 
-const CreateStudent = () => {
+// Loading component for Suspense fallback
+const LoadingFallback = () => (
+  <div className="flex justify-center items-center h-screen">
+    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+  </div>
+);
+
+// Main component with useSearchParams
+const CreateStudentForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const studentId = searchParams.get("id");
@@ -487,6 +495,15 @@ const CreateStudent = () => {
         </div>
       </form>
     </div>
+  );
+};
+
+// Main component with Suspense boundary
+const CreateStudent = () => {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <CreateStudentForm />
+    </Suspense>
   );
 };
 
