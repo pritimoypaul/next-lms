@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import TanstackProvider from "@/utils/queryProvider";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { Toaster } from "@/components/ui/toaster";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,7 +32,13 @@ export default function RootLayout({
       data-sidebar-size="lg"
       data-card-style="square"
     >
-      <body>{children}</body>
+      <body>
+        <TanstackProvider>
+          {children}
+          <Toaster />
+          <ReactQueryDevtools initialIsOpen={false} />
+        </TanstackProvider>
+      </body>
     </html>
   );
 }

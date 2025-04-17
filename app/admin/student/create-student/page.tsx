@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -30,21 +30,22 @@ import {
   Strikethrough,
   Undo,
 } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import axiosInstance from "@/utils/axios";
+import { toast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  password: z.string().min(2, "Password must be at least 2 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
   email: z.string().email("Invalid email address"),
-  country: z.string().min(1, "Please select a country"),
-  state: z.string().min(1, "Please select a state"),
-  city: z.string().min(1, "Please select a city"),
-  guardianName: z.string().min(1, "Please select a guardian name"),
+  guardianName: z.string().min(1, "Please enter guardian name"),
   guardianPhone: z
     .string()
     .min(10, "Guardian phone number must be at least 10 digits"),
   address: z.string().min(5, "Address must be at least 5 characters"),
-  profileImage: z.any(),
+  profileImage: z.any().optional(),
 });
 
 const countries = [
@@ -77,6 +78,12 @@ const cities = [
 ];
 
 const CreateStudent = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const studentId = searchParams.get("id");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -84,9 +91,6 @@ const CreateStudent = () => {
       password: "",
       phone: "",
       email: "",
-      country: "",
-      state: "",
-      city: "",
       guardianName: "",
       guardianPhone: "",
       address: "",
@@ -113,9 +117,91 @@ const CreateStudent = () => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
-    // Handle form submission
+  // Fetch student data if editing
+  useEffect(() => {
+    const fetchStudent = async () => {
+      if (studentId) {
+        setIsFetching(true);
+        try {
+          const response = await axiosInstance.get(`/student/${studentId}`);
+          const student = response.data.data;
+
+          // Set form values
+          form.reset({
+            name: student.name || "",
+            password: "", // Don't set password for security
+            phone: student.phone || "",
+            email: student.email || "",
+            guardianName: student.gurdianName || "",
+            guardianPhone: student.gurdianPhone || "",
+            address: student.address || "",
+          });
+
+          // Set editor content if available
+          if (student.metaDescription && editor) {
+            editor.commands.setContent(student.metaDescription);
+          }
+        } catch (error: any) {
+          toast({
+            variant: "destructive",
+            title: "Error fetching student",
+            description:
+              error.response?.data?.message || "Something went wrong",
+          });
+        } finally {
+          setIsFetching(false);
+        }
+      }
+    };
+
+    fetchStudent();
+  }, [studentId, form, editor]);
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setIsLoading(true);
+    try {
+      // Prepare data for API
+      const studentData = {
+        name: values.name,
+        password: values.password,
+        phone: values.phone,
+        email: values.email,
+        gurdianName: values.guardianName,
+        gurdianPhone: values.guardianPhone,
+        address: values.address,
+        metaDescription: editor?.getHTML() || "",
+        role: "student",
+      };
+
+      // Create or update student
+      if (studentId) {
+        await axiosInstance.patch(`/student/update-student`, {
+          ...studentData,
+          _id: studentId,
+        });
+        toast({
+          title: "Student updated successfully",
+          description: "The student information has been updated",
+        });
+      } else {
+        await axiosInstance.post("/user/create-student", studentData);
+        toast({
+          title: "Student created successfully",
+          description: "A new student has been added to the system",
+        });
+      }
+
+      // Redirect to student list
+      router.push("/admin/student/all-student");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: studentId ? "Error updating student" : "Error creating student",
+        description: error.response?.data?.message || "Something went wrong",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!editor) {
@@ -127,7 +213,9 @@ const CreateStudent = () => {
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="grid grid-cols-12 gap-x-4">
           <div className="col-span-full lg:col-span-7 card p-4 lg:p-6">
-            <h6 className="card-title">Add New Student</h6>
+            <h6 className="card-title">
+              {studentId ? "Edit Student" : "Add New Student"}
+            </h6>
             <div className="grid grid-cols-12 gap-x-4 gap-y-5 mt-7 pt-0.5">
               <div className="col-span-full lg:col-span-6 space-y-2">
                 <Label htmlFor="firstName">Name *</Label>
@@ -135,6 +223,7 @@ const CreateStudent = () => {
                   id="name"
                   placeholder="Name"
                   {...form.register("name")}
+                  disabled={isFetching}
                 />
                 {form.formState.errors.name && (
                   <p className="text-sm text-red-500">
@@ -143,12 +232,19 @@ const CreateStudent = () => {
                 )}
               </div>
               <div className="col-span-full lg:col-span-6 space-y-2">
-                <Label htmlFor="password">Password *</Label>
+                <Label htmlFor="password">
+                  Password {studentId ? "" : "*"}
+                </Label>
                 <Input
                   id="password"
-                  placeholder="Password"
+                  placeholder={
+                    studentId
+                      ? "Leave blank to keep current password"
+                      : "Password"
+                  }
                   type="password"
                   {...form.register("password")}
+                  disabled={isFetching}
                 />
                 {form.formState.errors.password && (
                   <p className="text-sm text-red-500">
@@ -163,6 +259,7 @@ const CreateStudent = () => {
                   type="tel"
                   placeholder="Phone Number"
                   {...form.register("phone")}
+                  disabled={isFetching}
                 />
                 {form.formState.errors.phone && (
                   <p className="text-sm text-red-500">
@@ -177,6 +274,7 @@ const CreateStudent = () => {
                   type="email"
                   placeholder="Email"
                   {...form.register("email")}
+                  disabled={isFetching}
                 />
                 {form.formState.errors.email && (
                   <p className="text-sm text-red-500">
@@ -190,6 +288,7 @@ const CreateStudent = () => {
                   id="guardianName"
                   placeholder="Guardian Name"
                   {...form.register("guardianName")}
+                  disabled={isFetching}
                 />
                 {form.formState.errors.guardianName && (
                   <p className="text-sm text-red-500">
@@ -203,6 +302,7 @@ const CreateStudent = () => {
                   id="guardianPhone"
                   placeholder="Guardian Phone"
                   {...form.register("guardianPhone")}
+                  disabled={isFetching}
                 />
                 {form.formState.errors.guardianPhone && (
                   <p className="text-sm text-red-500">
@@ -217,6 +317,7 @@ const CreateStudent = () => {
                   id="address"
                   placeholder="Your Address"
                   {...form.register("address")}
+                  disabled={isFetching}
                 />
                 {form.formState.errors.address && (
                   <p className="text-sm text-red-500">
@@ -366,8 +467,21 @@ const CreateStudent = () => {
                 </div>
               </label>
             </div>
-            <Button type="submit" className="mt-4">
-              Next
+            <Button
+              type="submit"
+              className="mt-4 w-full"
+              disabled={isLoading || isFetching}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {studentId ? "Updating..." : "Creating..."}
+                </>
+              ) : studentId ? (
+                "Update Student"
+              ) : (
+                "Create Student"
+              )}
             </Button>
           </div>
         </div>

@@ -3,12 +3,21 @@
 import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 export default function Layout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const router = useRouter();
+
+  const logOutUser = () => {
+    Cookies.remove("token");
+    router.push("/auth/login");
+  };
+
   return (
     <body className="bg-body-light dark:bg-dark-body group-data-[theme-width=box]:container group-data-[theme-width=box]:max-w-screen-3xl xl:group-data-[theme-width=box]:px-4">
       {/* <div
@@ -862,7 +871,7 @@ export default function Layout({
         {/* <!-- Logout Link --> */}
         <div className="mt-auto px-2.5 py-6 group-data-[sidebar-size=sm]:px-2">
           <a
-            href="sign-in.html"
+            onClick={() => logOutUser()}
             className="flex-center-between text-gray-500 font-semibold leading-none bg-gray-200 dark:bg-dark-icon dark:text-dark-text rounded-[10px] px-6 py-4 group-data-[sidebar-size=sm]:p-[12px_8px] group-data-[sidebar-size=sm]:justify-center dk-theme-card-square"
           >
             <span className="group-data-[sidebar-size=sm]:hidden block">
