@@ -4,35 +4,66 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2 } from "lucide-react";
-
-interface Category {
-  id: number;
-  name: string;
-  status: boolean;
-}
+import { Pencil, Trash2, Loader2 } from "lucide-react";
+import { useCourseCategoryList } from "@/utils/apis/getCourseCategory";
+import { CourseCategory } from "@/types/courseCategory";
+import { toast } from "@/hooks/use-toast";
+import axiosInstance from "@/utils/axios";
 
 const AllCourseCategory = () => {
-  const [categories, setCategories] = useState<Category[]>([
-    { id: 1, name: "Programing", status: true },
-    { id: 2, name: "JavaScript", status: true },
-    { id: 3, name: "Web Development", status: true },
-    { id: 4, name: "Web Design", status: true },
-    { id: 5, name: "UI/UX", status: true },
-    { id: 6, name: "Business Growth", status: true },
-    { id: 7, name: "Job Success", status: true },
-    { id: 8, name: "Basic Graphic Design", status: true },
-  ]);
+  const [selectedPage, setSelectedPage] = useState(1);
+  const { data: courseCategoriesData, isLoading, refetch } = useCourseCategoryList(10, selectedPage);
+  const categories = courseCategoriesData?.data || [];
 
-  const handleStatusChange = (id: number) => {
-    setCategories(
-      categories.map((category) =>
-        category.id === id
-          ? { ...category, status: !category.status }
-          : category
-      )
-    );
+  const handleStatusChange = async (id: string, currentStatus: boolean) => {
+    try {
+      await axiosInstance.patch(`/courseCategory/update-status/${id}`, {
+        isDeleted: !currentStatus
+      });
+      
+      toast({
+        title: "Status updated successfully",
+        description: `Category has been ${currentStatus ? 'disabled' : 'enabled'}`,
+      });
+      
+      refetch();
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error updating status",
+        description: error.response?.data?.message || "Something went wrong",
+      });
+    }
   };
+
+  const handleDelete = async (id: string) => {
+    if (confirm("Are you sure you want to delete this category?")) {
+      try {
+        await axiosInstance.delete(`/courseCategory/${id}`);
+        
+        toast({
+          title: "Category deleted successfully",
+          description: "The category has been removed from the system",
+        });
+        
+        refetch();
+      } catch (error: any) {
+        toast({
+          variant: "destructive",
+          title: "Error deleting category",
+          description: error.response?.data?.message || "Something went wrong",
+        });
+      }
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="main-content group-data-[sidebar-size=lg]:xl:ml-[16px] group-data-[sidebar-size=sm]:xl:ml-[16px] px-4 group-data-[theme-width=box]:xl:px-0 ac-transition">
@@ -43,7 +74,7 @@ const AllCourseCategory = () => {
             <p className="card-description">All Category Here</p>
           </div>
           <Link
-            href="/admin/create-course-category"
+            href="/admin/course-category/create-course-category"
             className="btn b-solid btn-primary-solid"
           >
             Add Category
@@ -61,23 +92,23 @@ const AllCourseCategory = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-dark-border">
-                {categories.map((category) => (
+                {categories.map((category: CourseCategory) => (
                   <tr
-                    key={category.id}
+                    key={category._id}
                     className="hover:bg-primary-200/50 dark:hover:bg-dark-icon hover:text-gray-500 dark:hover:text-white"
                   >
-                    <td className="px-3.5 py-4">{category.name}</td>
+                    <td className="px-3.5 py-4">{category.title}</td>
                     <td className="px-3.5 py-4">
                       <Switch
-                        checked={category.status}
-                        onCheckedChange={() => handleStatusChange(category.id)}
+                        checked={!category.isDeleted}
+                        onCheckedChange={() => handleStatusChange(category._id, !category.isDeleted)}
                         className="data-[state=checked]:bg-[rgb(95_113_250)] data-[state=unchecked]:bg-[rgb(226_226_226)] [&>span]:bg-white"
                       />
                     </td>
                     <td className="px-3.5 py-4">
                       <div className="flex items-center gap-1">
                         <Link
-                          href={`/admin/create-course-category?id=${category.id}`}
+                          href={`/admin/course-category/create-course-category?id=${category.slug}`}
                           className="btn-icon btn-primary-icon-light size-7"
                         >
                           <Pencil className="h-4 w-4" />
@@ -86,18 +117,7 @@ const AllCourseCategory = () => {
                           variant="ghost"
                           size="icon"
                           className="btn-icon btn-danger-icon-light size-7"
-                          onClick={() => {
-                            // Handle delete
-                            if (
-                              confirm(
-                                "Are you sure you want to delete this category?"
-                              )
-                            ) {
-                              setCategories(
-                                categories.filter((c) => c.id !== category.id)
-                              );
-                            }
-                          }}
+                          onClick={() => handleDelete(category.slug)}
                         >
                           <Trash2 className="h-4 w-4 text-danger" />
                         </Button>

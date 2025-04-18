@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -29,18 +29,19 @@ import {
   Redo,
   Strikethrough,
   Undo,
+  Loader2,
 } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import axiosInstance from "@/utils/axios";
+import { toast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
-  firstName: z.string().min(2, "First name must be at least 2 characters"),
-  lastName: z.string().min(2, "Last name must be at least 2 characters"),
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
   email: z.string().email("Invalid email address"),
-  country: z.string().min(1, "Please select a country"),
-  state: z.string().min(1, "Please select a state"),
-  city: z.string().min(1, "Please select a city"),
   address: z.string().min(5, "Address must be at least 5 characters"),
-  profileImage: z.any(),
+  profileImage: z.any().optional(),
 });
 
 const countries = [
@@ -72,17 +73,28 @@ const cities = [
   { value: "SA", label: "San Antonio" },
 ];
 
-const CreateInstructor = () => {
+// Loading component for Suspense fallback
+const LoadingFallback = () => (
+  <div className="flex justify-center items-center h-screen">
+    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+  </div>
+);
+
+// Main component with useSearchParams
+const CreateInstructorForm = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const instructorId = searchParams.get("id");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
+      name: "",
+      password: "",
       phone: "",
       email: "",
-      country: "",
-      state: "",
-      city: "",
       address: "",
     },
   });
@@ -107,9 +119,87 @@ const CreateInstructor = () => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
-    // Handle form submission
+  // Fetch instructor data if editing
+  useEffect(() => {
+    const fetchInstructor = async () => {
+      if (instructorId) {
+        setIsFetching(true);
+        try {
+          const response = await axiosInstance.get(`/faculty/${instructorId}`);
+          const instructor = response.data.data;
+
+          // Set form values
+          form.reset({
+            name: instructor.name || "",
+            password: "", // Don't set password for security
+            phone: instructor.phone || "",
+            email: instructor.email || "",
+            address: instructor.address || "",
+          });
+
+          // Set editor content if available
+          if (instructor.metaDescription && editor) {
+            editor.commands.setContent(instructor.metaDescription);
+          }
+        } catch (error: any) {
+          toast({
+            variant: "destructive",
+            title: "Error fetching instructor",
+            description:
+              error.response?.data?.message || "Something went wrong",
+          });
+        } finally {
+          setIsFetching(false);
+        }
+      }
+    };
+
+    fetchInstructor();
+  }, [instructorId, form, editor]);
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setIsLoading(true);
+    try {
+      // Prepare data for API
+      const instructorData = {
+        name: values.name,
+        password: values.password,
+        phone: values.phone,
+        email: values.email,
+        address: values.address,
+        metaDescription: editor?.getHTML() || "",
+        role: "teacher",
+      };
+
+      // Create or update instructor
+      if (instructorId) {
+        await axiosInstance.patch(`/faculty/update-faculty`, {
+          ...instructorData,
+          _id: instructorId,
+        });
+        toast({
+          title: "Instructor updated successfully",
+          description: "The instructor information has been updated",
+        });
+      } else {
+        await axiosInstance.post("/user/create-faculty", instructorData);
+        toast({
+          title: "Instructor created successfully",
+          description: "A new instructor has been added to the system",
+        });
+      }
+
+      // Redirect to instructor list
+      router.push("/admin/instructor/all-instructor");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: instructorId ? "Error updating instructor" : "Error creating instructor",
+        description: error.response?.data?.message || "Something went wrong",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!editor) {
@@ -121,31 +211,42 @@ const CreateInstructor = () => {
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="grid grid-cols-12 gap-x-4">
           <div className="col-span-full lg:col-span-7 card p-4 lg:p-6">
-            <h6 className="card-title">Add New Instructor</h6>
+            <h6 className="card-title">
+              {instructorId ? "Edit Instructor" : "Add New Instructor"}
+            </h6>
             <div className="grid grid-cols-12 gap-x-4 gap-y-5 mt-7 pt-0.5">
               <div className="col-span-full lg:col-span-6 space-y-2">
-                <Label htmlFor="firstName">First Name *</Label>
+                <Label htmlFor="name">Name *</Label>
                 <Input
-                  id="firstName"
-                  placeholder="First Name"
-                  {...form.register("firstName")}
+                  id="name"
+                  placeholder="Name"
+                  {...form.register("name")}
+                  disabled={isFetching}
                 />
-                {form.formState.errors.firstName && (
+                {form.formState.errors.name && (
                   <p className="text-sm text-red-500">
-                    {form.formState.errors.firstName.message}
+                    {form.formState.errors.name.message}
                   </p>
                 )}
               </div>
               <div className="col-span-full lg:col-span-6 space-y-2">
-                <Label htmlFor="lastName">Last Name *</Label>
+                <Label htmlFor="password">
+                  Password {instructorId ? "" : "*"}
+                </Label>
                 <Input
-                  id="lastName"
-                  placeholder="Last Name"
-                  {...form.register("lastName")}
+                  id="password"
+                  type="password"
+                  placeholder={
+                    instructorId
+                      ? "Leave blank to keep current password"
+                      : "Password"
+                  }
+                  {...form.register("password")}
+                  disabled={isFetching}
                 />
-                {form.formState.errors.lastName && (
+                {form.formState.errors.password && (
                   <p className="text-sm text-red-500">
-                    {form.formState.errors.lastName.message}
+                    {form.formState.errors.password.message}
                   </p>
                 )}
               </div>
@@ -156,6 +257,7 @@ const CreateInstructor = () => {
                   type="tel"
                   placeholder="Phone Number"
                   {...form.register("phone")}
+                  disabled={isFetching}
                 />
                 {form.formState.errors.phone && (
                   <p className="text-sm text-red-500">
@@ -170,79 +272,11 @@ const CreateInstructor = () => {
                   type="email"
                   placeholder="Email"
                   {...form.register("email")}
+                  disabled={isFetching}
                 />
                 {form.formState.errors.email && (
                   <p className="text-sm text-red-500">
                     {form.formState.errors.email.message}
-                  </p>
-                )}
-              </div>
-              <div className="col-span-full lg:col-span-4 space-y-2">
-                <Label>Country *</Label>
-                <Select
-                  onValueChange={(value) => form.setValue("country", value)}
-                  defaultValue={form.getValues("country")}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Country" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {countries.map((country) => (
-                      <SelectItem key={country.value} value={country.value}>
-                        {country.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {form.formState.errors.country && (
-                  <p className="text-sm text-red-500">
-                    {form.formState.errors.country.message}
-                  </p>
-                )}
-              </div>
-              <div className="col-span-full lg:col-span-4 space-y-2">
-                <Label>State *</Label>
-                <Select
-                  onValueChange={(value) => form.setValue("state", value)}
-                  defaultValue={form.getValues("state")}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select State" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {states.map((state) => (
-                      <SelectItem key={state.value} value={state.value}>
-                        {state.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {form.formState.errors.state && (
-                  <p className="text-sm text-red-500">
-                    {form.formState.errors.state.message}
-                  </p>
-                )}
-              </div>
-              <div className="col-span-full lg:col-span-4 space-y-2">
-                <Label>City *</Label>
-                <Select
-                  onValueChange={(value) => form.setValue("city", value)}
-                  defaultValue={form.getValues("city")}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select City" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {cities.map((city) => (
-                      <SelectItem key={city.value} value={city.value}>
-                        {city.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {form.formState.errors.city && (
-                  <p className="text-sm text-red-500">
-                    {form.formState.errors.city.message}
                   </p>
                 )}
               </div>
@@ -252,6 +286,7 @@ const CreateInstructor = () => {
                   id="address"
                   placeholder="Your Address"
                   {...form.register("address")}
+                  disabled={isFetching}
                 />
                 {form.formState.errors.address && (
                   <p className="text-sm text-red-500">
@@ -401,13 +436,29 @@ const CreateInstructor = () => {
                 </div>
               </label>
             </div>
-            <Button type="submit" className="mt-4">
-              Next
+            <Button type="submit" className="mt-4" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {instructorId ? "Updating..." : "Creating..."}
+                </>
+              ) : (
+                instructorId ? "Update Instructor" : "Create Instructor"
+              )}
             </Button>
           </div>
         </div>
       </form>
     </div>
+  );
+};
+
+// Wrap the main component with Suspense
+const CreateInstructor = () => {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <CreateInstructorForm />
+    </Suspense>
   );
 };
 

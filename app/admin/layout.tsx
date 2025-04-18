@@ -441,7 +441,7 @@ export default function Layout({
                   <ul className="text-[14px] pl-1.5 group-data-[sidebar-size=sm]:pl-0">
                     <li className="relative group/sub">
                       <Link
-                        href="/admin/all-course-category"
+                        href="/admin/course-category/all-course-category"
                         className="relative peer/link text-gray-500 dark:text-dark-text-two font-medium leading-none px-5 py-2.5 group-data-[sidebar-size=lg]:pl-8 flex hover:text-primary-500 dark:hover:text-dark-text [&.active]:text-primary-500 dark:[&.active]:text-dark-text before:absolute before:top-[49%] before:-translate-y-1/2 before:left-4 before:size-1.5 before:rounded-50 before:border before:border-gray-400 hover:before:border-none hover:before:bg-primary-400 [&.active]:before:border-none group-data-[sidebar-size=sm]:after:block group-data-[sidebar-size=sm]:after:right-3 [&.active]:before:bg-primary-400 group-data-[sidebar-size=sm]:before:hidden"
                       >
                         All Course Category
@@ -449,7 +449,7 @@ export default function Layout({
                     </li>
                     <li className="relative group/sub">
                       <Link
-                        href="/admin/create-course-category"
+                        href="/admin/course-category/create-course-category"
                         className="relative peer/link text-gray-500 dark:text-dark-text-two font-medium leading-none px-5 py-2.5 group-data-[sidebar-size=lg]:pl-8 flex hover:text-primary-500 dark:hover:text-dark-text [&.active]:text-primary-500 dark:[&.active]:text-dark-text before:absolute before:top-[49%] before:-translate-y-1/2 before:left-4 before:size-1.5 before:rounded-50 before:border before:border-gray-400 hover:before:border-none hover:before:bg-primary-400 [&.active]:before:border-none group-data-[sidebar-size=sm]:after:block group-data-[sidebar-size=sm]:after:right-3 [&.active]:before:bg-primary-400 group-data-[sidebar-size=sm]:before:hidden"
                       >
                         Create Course Category
@@ -762,7 +762,7 @@ export default function Layout({
                   <ul className="text-[14px] pl-1.5 group-data-[sidebar-size=sm]:pl-0">
                     <li className="relative group/sub">
                       <Link
-                        href="/admin/all-instructor"
+                        href="/admin/instructor/all-instructor"
                         className="relative peer/link text-gray-500 dark:text-dark-text-two font-medium leading-none px-5 py-2.5 group-data-[sidebar-size=lg]:pl-8 flex hover:text-primary-500 dark:hover:text-dark-text [&.active]:text-primary-500 dark:[&.active]:text-dark-text before:absolute before:top-[49%] before:-translate-y-1/2 before:left-4 before:size-1.5 before:rounded-50 before:border before:border-gray-400 hover:before:border-none hover:before:bg-primary-400 [&.active]:before:border-none group-data-[sidebar-size=sm]:after:block group-data-[sidebar-size=sm]:after:right-3 [&.active]:before:bg-primary-400 group-data-[sidebar-size=sm]:before:hidden"
                       >
                         Instructor List
@@ -770,7 +770,7 @@ export default function Layout({
                     </li>
                     <li className="relative group/sub">
                       <Link
-                        href="/admin/create-instructor"
+                        href="/admin/instructor/create-instructor"
                         className="relative peer/link text-gray-500 dark:text-dark-text-two font-medium leading-none px-5 py-2.5 group-data-[sidebar-size=lg]:pl-8 flex hover:text-primary-500 dark:hover:text-dark-text [&.active]:text-primary-500 dark:[&.active]:text-dark-text before:absolute before:top-[49%] before:-translate-y-1/2 before:left-4 before:size-1.5 before:rounded-50 before:border before:border-gray-400 hover:before:border-none hover:before:bg-primary-400 [&.active]:before:border-none group-data-[sidebar-size=sm]:after:block group-data-[sidebar-size=sm]:after:right-3 [&.active]:before:bg-primary-400 group-data-[sidebar-size=sm]:before:hidden"
                       >
                         Create Instructor

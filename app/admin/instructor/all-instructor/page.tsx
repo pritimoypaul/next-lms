@@ -1,8 +1,17 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useInstructorList } from "@/utils/apis/getInstructor";
 
 const AllInstructor = () => {
+  const { data: instructors, isLoading } = useInstructorList(10, 1);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="main-content group-data-[sidebar-size=lg]:xl:ml-[16px] group-data-[sidebar-size=sm]:xl:ml-[16px] px-4 group-data-[theme-width=box]:xl:px-0 ac-transition">
       <div className="card p-0 lg:min-h-[calc(100vh_-_theme('spacing.header')_*_1.4)] xl:min-h-[calc(100vh_-_theme('spacing.header')_*_1.6)]">
@@ -12,7 +21,7 @@ const AllInstructor = () => {
             <p className="card-description">All Instructor Here</p>
           </div>
           <Link
-            href="/admin/create-instructor"
+            href="/admin/instructor/create-instructor"
             className="btn b-solid btn-primary-solid"
           >
             Add Instructor
@@ -34,10 +43,7 @@ const AllInstructor = () => {
                     Phone
                   </th>
                   <th className="px-4 py-4 bg-[#F2F4F9] dark:bg-dark-card-two first:rounded-l-lg last:rounded-r-lg dk-theme-card-square">
-                    Country
-                  </th>
-                  <th className="px-4 py-4 bg-[#F2F4F9] dark:bg-dark-card-two first:rounded-l-lg last:rounded-r-lg dk-theme-card-square">
-                    Total Course
+                    Address
                   </th>
                   <th className="px-4 py-4 bg-[#F2F4F9] dark:bg-dark-card-two first:rounded-l-lg last:rounded-r-lg dk-theme-card-square w-10">
                     Action
@@ -45,54 +51,8 @@ const AllInstructor = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-dark-border">
-                {[
-                  {
-                    name: "Eleanor Pena",
-                    role: "UX/UI Design",
-                    email: "eleanor@gmail.com",
-                    phone: "9658242545",
-                    country: "South America",
-                    courses: "5 - Course",
-                    image: "/assets/images/student/student-2.png",
-                  },
-                  {
-                    name: "Esther Howard",
-                    role: "Web & Mobile Application",
-                    email: "howard@gmail.com",
-                    phone: "2145872545",
-                    country: "Canada",
-                    courses: "8 - Course",
-                    image: "/assets/images/student/student-1.png",
-                  },
-                  {
-                    name: "Albert Flores",
-                    role: "Business Strategy",
-                    email: "albert@gmail.com",
-                    phone: "214584056",
-                    country: "Swizerland",
-                    courses: "1 - Course",
-                    image: "/assets/images/student/student-3.png",
-                  },
-                  {
-                    name: "Darlena Robertson",
-                    role: "Frontend Developer",
-                    email: "darlena@gmail.com",
-                    phone: "4214587935",
-                    country: "Japhan",
-                    courses: "10 - Course",
-                    image: "/assets/images/student/student-4.png",
-                  },
-                  {
-                    name: "Devon Lane",
-                    role: "Visual Designer",
-                    email: "devon@gmail.com",
-                    phone: "9658242545",
-                    country: "Australia",
-                    courses: "15 - Course",
-                    image: "/assets/images/student/student-5.png",
-                  },
-                ].map((instructor, index) => (
-                  <tr key={index}>
+                {instructors?.data?.map((instructor: any) => (
+                  <tr key={instructor._id}>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-3.5">
                         <Link
@@ -100,7 +60,7 @@ const AllInstructor = () => {
                           className="size-12 rounded-50 overflow-hidden dk-theme-card-square"
                         >
                           <Image
-                            src={instructor.image}
+                            src={instructor.profile_picture || "/assets/images/student/student-2.png"}
                             alt={instructor.name}
                             width={48}
                             height={48}
@@ -119,12 +79,11 @@ const AllInstructor = () => {
                     </td>
                     <td className="px-4 py-4">{instructor.email}</td>
                     <td className="px-4 py-4">{instructor.phone}</td>
-                    <td className="px-4 py-4">{instructor.country}</td>
-                    <td className="px-4 py-4">{instructor.courses}</td>
+                    <td className="px-4 py-4">{instructor.address}</td>
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
                         <Link
-                          href="/admin/create-instructor"
+                          href={`/admin/instructor/create-instructor?id=${instructor._id}`}
                           className="btn-icon btn-primary-icon-light size-7"
                         >
                           <i className="ri-edit-2-line text-inherit text-[13px]"></i>
