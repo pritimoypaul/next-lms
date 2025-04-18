@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -41,7 +41,7 @@ const formSchema = z.object({
   thumbnail: z.any().optional(),
 });
 
-const CreateCourseCategory = () => {
+const CreateCourseCategoryForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const categoryId = searchParams.get("id");
@@ -63,7 +63,7 @@ const CreateCourseCategory = () => {
       if (categoryId) {
         setIsFetching(true);
         try {
-          const response = await axiosInstance.get(`/courseCategory/${categoryId}`);
+          const response = await axiosInstance.get(`/coursecategory/${categoryId}`);
           const category = response.data.data;
 
           // Set form values
@@ -268,6 +268,18 @@ const CreateCourseCategory = () => {
         </div>
       </form>
     </div>
+  );
+};
+
+const CreateCourseCategory = () => {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    }>
+      <CreateCourseCategoryForm />
+    </Suspense>
   );
 };
 
