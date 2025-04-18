@@ -56,10 +56,10 @@ const Login = () => {
     setLoading(true);
     try {
       const response = await axiosInstance.post("/auth/login", data);
-      console.log(response.data.data.token);
+      console.log(response.data.data.accessToken);
 
-      if (response.data.data.token) {
-        Cookies.set("token", response.data.data.token, { expires: 30 });
+      if (response.data.data.accessToken) {
+        Cookies.set("token", response.data.data.accessToken, { expires: 30 });
         toast({
           variant: "default",
           title: "Logged in successfully!",
